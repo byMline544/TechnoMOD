@@ -1,0 +1,2 @@
+# Локальные бинарные ресурсы текстур не храним в git
+src/minecraft/mods/technomod/textures/**/*.png
