@@ -10,12 +10,10 @@ public final class Util {
     private Util() {}
 
     /**
-     * Безопасное получение/создание корневого NBT-тега игрока.
+     * Безопасное получение корневого NBT-тега игрока.
+     * В 1.5.2 getEntityData() уже возвращает рабочий объект, отдельного setEntityData нет.
      */
     public static NBTTagCompound getPlayerData(EntityPlayer player) {
-        if (player.getEntityData() == null) {
-            player.setEntityData(new NBTTagCompound());
-        }
         return player.getEntityData();
     }
 

@@ -1,23 +1,28 @@
 package techno;
 
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import techno.event.EventHandlerRegistry;
-import techno.managers.*;
+import techno.managers.AchievementManager;
+import techno.managers.BlockManager;
+import techno.managers.GuiContainerManager;
+import techno.managers.ItemManager;
+import techno.managers.RecipeManager;
+import techno.managers.RenderManager;
+import techno.managers.TileManager;
+import techno.managers.WorldManager;
 import techno.packets.PacketHandler;
+import techno.packets.PacketRegistry;
 import techno.proxy.ServerProxy;
 
 /**
  * Главный класс мода.
- * Здесь размещается только оркестрация: инициализация менеджеров,
- * прокси, сетевого слоя и первичных регистраций контента.
+ * Для Forge 1.5.2 используется жизненный цикл @Mod.PreInit/@Mod.Init/@Mod.PostInit.
  */
 @Mod(modid = TechnoMod.MOD_ID, name = TechnoMod.MOD_NAME, version = TechnoMod.MOD_VERSION)
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = { TechnoMod.CHANNEL }, packetHandler = PacketHandler.class)
@@ -36,7 +41,7 @@ public class TechnoMod {
     public static final CreativeTechnoTab TAB_BLOCKS = new CreativeTechnoTab("TechnoBlocks", true);
     public static final CreativeTechnoTab TAB_ITEMS = new CreativeTechnoTab("TechnoItems", false);
 
-    @EventHandler
+    @Mod.PreInit
     public void preInit(FMLPreInitializationEvent event) {
         ItemManager.init();
         BlockManager.init();
@@ -45,7 +50,7 @@ public class TechnoMod {
         proxy.registerRenderers();
     }
 
-    @EventHandler
+    @Mod.Init
     public void init(FMLInitializationEvent event) {
         GuiContainerManager.init();
         WorldManager.init();
@@ -66,7 +71,7 @@ public class TechnoMod {
         LanguageRegistry.addName(ItemManager.dustTin, "Оловянная пыль");
     }
 
-    @EventHandler
+    @Mod.PostInit
     public void postInit(FMLPostInitializationEvent event) {
         // Резерв под интеграции с внешними модами и баланс-патчи.
     }

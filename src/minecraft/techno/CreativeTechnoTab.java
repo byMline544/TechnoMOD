@@ -1,7 +1,6 @@
 package techno;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import techno.managers.BlockManager;
 import techno.managers.ItemManager;
 
@@ -18,7 +17,7 @@ public class CreativeTechnoTab extends CreativeTabs {
     }
 
     @Override
-    public Item getTabIconItem() {
-        return blocks ? Item.getItemFromBlock(BlockManager.generatorCoal) : ItemManager.ingotBronze;
+    public int getTabIconItemIndex() {
+        return blocks ? BlockManager.generatorCoal.blockID : ItemManager.ingotBronze.itemID;
     }
 }
