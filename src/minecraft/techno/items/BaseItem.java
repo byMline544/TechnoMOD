@@ -22,6 +22,6 @@ public class BaseItem extends Item {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister register) {
-        this.itemIcon = register.registerIcon("technomod:items/" + textureName);
+        this.itemIcon = register.registerIcon("technomod:" + textureName);
     }
 }

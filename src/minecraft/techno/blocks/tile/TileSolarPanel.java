@@ -8,8 +8,12 @@ public class TileSolarPanel extends BaseTileGenerator {
 
     @Override
     public void updateEntity() {
-        if (worldObj != null && worldObj.isDaytime() && worldObj.canBlockSeeTheSky(xCoord, yCoord + 1, zCoord)) {
+        super.updateEntity();
+        if (!worldObj.isRemote && worldObj.isDaytime() && worldObj.canBlockSeeTheSky(xCoord, yCoord + 1, zCoord)) {
             setStoredEnergy(getStoredEnergy() + 4);
         }
     }
+
+    @Override
+    protected String getInventoryName() { return "solar.panel"; }
 }

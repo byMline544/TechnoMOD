@@ -26,4 +26,11 @@ public final class ItemManager {
         GameRegistry.registerItem(dustBronze, "dustBronze");
         GameRegistry.registerItem(dustTin, "dustTin");
     }
+    public static void registerNames() {
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(ingotBronze, "Бронзовый слиток");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(ingotTin, "Оловянный слиток");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(dustBronze, "Бронзовая пыль");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(dustTin, "Оловянная пыль");
+    }
+
 }

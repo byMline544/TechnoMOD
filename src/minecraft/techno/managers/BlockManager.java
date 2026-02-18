@@ -32,4 +32,12 @@ public final class BlockManager {
         GameRegistry.registerBlock(oreBronze, "oreBronze");
         GameRegistry.registerBlock(oreTin, "oreTin");
     }
+    public static void registerNames() {
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(generatorCoal, "Угольный генератор");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(solarPanel, "Солнечная панель");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(electricFurnace, "Электропечь");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(oreBronze, "Бронзовая руда");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(oreTin, "Оловянная руда");
+    }
+
 }

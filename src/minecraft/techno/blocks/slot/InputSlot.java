@@ -4,7 +4,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 
 /**
- * Кастомный слот InputSlot.
+ * Входной слот.
  */
 public class InputSlot extends Slot {
     public InputSlot(IInventory inv, int index, int x, int y) { super(inv, index, x, y); }

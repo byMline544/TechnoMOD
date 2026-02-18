@@ -1,15 +1,17 @@
 package techno.blocks.gui;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.InventoryPlayer;
 import org.lwjgl.opengl.GL11;
 import techno.blocks.container.ContainerElectricFurnace;
+import techno.blocks.tile.TileElectricFurnace;
 
 /**
- * GUI машины.
+ * GUI электропечи.
  */
 public class GuiElectricFurnace extends BaseGuiMachine {
-    public GuiElectricFurnace() {
-        super(new ContainerElectricFurnace());
+    public GuiElectricFurnace(InventoryPlayer inv, TileElectricFurnace tile) {
+        super(new ContainerElectricFurnace(inv, tile));
         this.xSize = 176;
         this.ySize = 166;
     }
@@ -17,7 +19,7 @@ public class GuiElectricFurnace extends BaseGuiMachine {
     @Override
     protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        Minecraft.getMinecraft().renderEngine.bindTextureByName("/mods/technomod/textures/gui/guiElectricFurnace.png");
+        Minecraft.getMinecraft().renderEngine.bindTexture("/mods/technomod/textures/gui/guiElectricFurnace.png");
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
         drawTexturedModalRect(x, y, 0, 0, xSize, ySize);

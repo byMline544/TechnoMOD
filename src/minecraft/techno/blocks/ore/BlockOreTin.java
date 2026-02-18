@@ -22,6 +22,6 @@ public class BlockOreTin extends Block {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister register) {
-        this.blockIcon = register.registerIcon("technomod:blocks/oreTin");
+        this.blockIcon = register.registerIcon("technomod:oreTin");
     }
 }

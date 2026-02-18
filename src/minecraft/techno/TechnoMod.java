@@ -6,7 +6,6 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.registry.LanguageRegistry;
 import techno.event.EventHandlerRegistry;
 import techno.managers.AchievementManager;
 import techno.managers.BlockManager;
@@ -59,16 +58,9 @@ public class TechnoMod {
         AchievementManager.init();
         EventHandlerRegistry.register();
 
-        LanguageRegistry.addName(BlockManager.generatorCoal, "Угольный генератор");
-        LanguageRegistry.addName(BlockManager.solarPanel, "Солнечная панель");
-        LanguageRegistry.addName(BlockManager.electricFurnace, "Электропечь");
-        LanguageRegistry.addName(BlockManager.oreBronze, "Бронзовая руда");
-        LanguageRegistry.addName(BlockManager.oreTin, "Оловянная руда");
+        BlockManager.registerNames();
+        ItemManager.registerNames();
 
-        LanguageRegistry.addName(ItemManager.ingotBronze, "Бронзовый слиток");
-        LanguageRegistry.addName(ItemManager.ingotTin, "Оловянный слиток");
-        LanguageRegistry.addName(ItemManager.dustBronze, "Бронзовая пыль");
-        LanguageRegistry.addName(ItemManager.dustTin, "Оловянная пыль");
     }
 
     @Mod.PostInit

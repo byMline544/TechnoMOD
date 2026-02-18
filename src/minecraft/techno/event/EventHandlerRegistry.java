@@ -12,7 +12,6 @@ public final class EventHandlerRegistry {
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerCombatEventHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerEquipmentEventHandler());
-        MinecraftForge.EVENT_BUS.register(new ClientEquipmentEventHandler());
         MinecraftForge.EVENT_BUS.register(new AchievementEventHandler());
     }
 }

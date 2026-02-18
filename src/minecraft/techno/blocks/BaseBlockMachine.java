@@ -42,7 +42,7 @@ public abstract class BaseBlockMachine extends BlockContainer {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister reg) {
-        atlasIcon = reg.registerIcon("technomod:blocks/" + atlasTextureName);
+        atlasIcon = reg.registerIcon("technomod:" + atlasTextureName);
     }
 
     @Override

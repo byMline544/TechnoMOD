@@ -32,7 +32,19 @@ public class ExtendedPlayer implements IExtendedEntityProperties {
     @Override
     public void init(Entity entity, World world) {}
 
+    public int getPersonalEnergy() {
+        return personalEnergy;
+    }
+
+    public void addPersonalEnergy(int amount) {
+        personalEnergy = Math.max(0, personalEnergy + amount);
+    }
+
     public static void register(EntityPlayer player) {
         player.registerExtendedProperties(KEY, new ExtendedPlayer());
+    }
+
+    public static ExtendedPlayer get(EntityPlayer player) {
+        return (ExtendedPlayer) player.getExtendedProperties(KEY);
     }
 }
