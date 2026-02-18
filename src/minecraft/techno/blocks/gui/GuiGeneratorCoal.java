@@ -10,10 +10,19 @@ import techno.blocks.tile.TileGeneratorCoal;
  * GUI угольного генератора.
  */
 public class GuiGeneratorCoal extends BaseGuiMachine {
+    private final TileGeneratorCoal tile;
+
     public GuiGeneratorCoal(InventoryPlayer inv, TileGeneratorCoal tile) {
         super(new ContainerGeneratorCoal(inv, tile));
+        this.tile = tile;
         this.xSize = 176;
         this.ySize = 166;
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        fontRenderer.drawString("Угольный генератор", 8, 6, 0x404040);
+        fontRenderer.drawString("Энергия: " + tile.getStoredEnergy() + "/" + tile.getMaxEnergy() + " te", 8, 18, 0x00E060);
     }
 
     @Override

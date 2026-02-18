@@ -10,10 +10,19 @@ import techno.blocks.tile.TileElectricFurnace;
  * GUI электропечи.
  */
 public class GuiElectricFurnace extends BaseGuiMachine {
+    private final TileElectricFurnace tile;
+
     public GuiElectricFurnace(InventoryPlayer inv, TileElectricFurnace tile) {
         super(new ContainerElectricFurnace(inv, tile));
+        this.tile = tile;
         this.xSize = 176;
         this.ySize = 166;
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        fontRenderer.drawString("Электропечь", 8, 6, 0x404040);
+        fontRenderer.drawString("Энергия: " + tile.getStoredEnergy() + "/" + tile.getMaxEnergy() + " te", 8, 18, 0x00E060);
     }
 
     @Override

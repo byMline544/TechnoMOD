@@ -5,8 +5,6 @@ import net.minecraft.tileentity.TileEntityFurnace;
 
 /**
  * Tile угольного генератора.
- * Сжигает топливо и производит энергию.
- * Слоты: 0 - топливо.
  */
 public class TileGeneratorCoal extends BaseTileGenerator {
     public int burnTime;
@@ -25,6 +23,9 @@ public class TileGeneratorCoal extends BaseTileGenerator {
             if (burnTime > 0) {
                 burnTime--;
                 setStoredEnergy(getStoredEnergy() + 20);
+                setActiveState(true);
+            } else {
+                setActiveState(false);
             }
         }
     }
@@ -33,11 +34,6 @@ public class TileGeneratorCoal extends BaseTileGenerator {
         return TileEntityFurnace.getItemBurnTime(stack) > 0;
     }
 
-    @Override
-    protected String getInventoryName() { return "generator.coal"; }
-
-    @Override
-    public boolean isStackValidForSlot(int i, ItemStack stack) {
-        return i == 0 && canUseFuel(stack);
-    }
+    @Override protected String getInventoryName() { return "generator.coal"; }
+    @Override public boolean isStackValidForSlot(int i, ItemStack stack) { return i == 0 && canUseFuel(stack); }
 }

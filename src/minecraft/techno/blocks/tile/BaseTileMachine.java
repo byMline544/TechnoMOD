@@ -15,24 +15,32 @@ public abstract class BaseTileMachine extends TileEntity implements IEnergyNode,
     protected int energy;
     protected int maxEnergy;
     protected final ItemStack[] inventory;
+    protected boolean active;
 
     protected BaseTileMachine(int maxEnergy, int inventorySize) {
         this.maxEnergy = maxEnergy;
         this.inventory = new ItemStack[inventorySize];
     }
 
-    @Override
-    public int getStoredEnergy() { return energy; }
-    @Override
-    public int getMaxEnergy() { return maxEnergy; }
-    @Override
-    public void setStoredEnergy(int amount) { energy = Math.max(0, Math.min(maxEnergy, amount)); }
+    @Override public int getStoredEnergy() { return energy; }
+    @Override public int getMaxEnergy() { return maxEnergy; }
+    @Override public void setStoredEnergy(int amount) { energy = Math.max(0, Math.min(maxEnergy, amount)); }
+
+    public boolean isActive() { return active; }
+
+    protected void setActiveState(boolean value) {
+        if (active != value) {
+            active = value;
+            worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        }
+    }
 
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
         energy = nbt.getInteger("Energy");
         maxEnergy = nbt.getInteger("MaxEnergy");
+        active = nbt.getBoolean("Active");
 
         NBTTagList list = nbt.getTagList("Items");
         for (int i = 0; i < list.tagCount(); i++) {
@@ -49,6 +57,7 @@ public abstract class BaseTileMachine extends TileEntity implements IEnergyNode,
         super.writeToNBT(nbt);
         nbt.setInteger("Energy", energy);
         nbt.setInteger("MaxEnergy", maxEnergy);
+        nbt.setBoolean("Active", active);
 
         NBTTagList list = new NBTTagList();
         for (int i = 0; i < inventory.length; i++) {
@@ -62,11 +71,8 @@ public abstract class BaseTileMachine extends TileEntity implements IEnergyNode,
         nbt.setTag("Items", list);
     }
 
-    @Override
-    public int getSizeInventory() { return inventory.length; }
-
-    @Override
-    public ItemStack getStackInSlot(int i) { return inventory[i]; }
+    @Override public int getSizeInventory() { return inventory.length; }
+    @Override public ItemStack getStackInSlot(int i) { return inventory[i]; }
 
     @Override
     public ItemStack decrStackSize(int i, int count) {
@@ -91,13 +97,10 @@ public abstract class BaseTileMachine extends TileEntity implements IEnergyNode,
     @Override
     public void setInventorySlotContents(int i, ItemStack stack) {
         inventory[i] = stack;
-        if (stack != null && stack.stackSize > getInventoryStackLimit()) {
-            stack.stackSize = getInventoryStackLimit();
-        }
+        if (stack != null && stack.stackSize > getInventoryStackLimit()) stack.stackSize = getInventoryStackLimit();
     }
 
-    @Override
-    public int getInventoryStackLimit() { return 64; }
+    @Override public int getInventoryStackLimit() { return 64; }
 
     @Override
     public boolean isUseableByPlayer(EntityPlayer player) {
@@ -107,16 +110,9 @@ public abstract class BaseTileMachine extends TileEntity implements IEnergyNode,
 
     @Override public void openChest() {}
     @Override public void closeChest() {}
-
-    @Override
-    public String getInvName() { return getInventoryName(); }
-
-    @Override
-    public boolean isInvNameLocalized() { return true; }
-
-    @Override
-    public boolean isStackValidForSlot(int i, ItemStack stack) { return true; }
+    @Override public String getInvName() { return getInventoryName(); }
+    @Override public boolean isInvNameLocalized() { return true; }
+    @Override public boolean isStackValidForSlot(int i, ItemStack stack) { return true; }
 
     protected String getInventoryName() { return "techno.machine"; }
 }
-

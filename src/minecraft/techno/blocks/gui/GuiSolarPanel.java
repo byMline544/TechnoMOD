@@ -10,10 +10,19 @@ import techno.blocks.tile.TileSolarPanel;
  * GUI солнечной панели.
  */
 public class GuiSolarPanel extends BaseGuiMachine {
+    private final TileSolarPanel tile;
+
     public GuiSolarPanel(InventoryPlayer inv, TileSolarPanel tile) {
         super(new ContainerSolarPanel(inv, tile));
+        this.tile = tile;
         this.xSize = 176;
         this.ySize = 166;
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        fontRenderer.drawString("Солнечная панель", 8, 6, 0x404040);
+        fontRenderer.drawString("Энергия: " + tile.getStoredEnergy() + "/" + tile.getMaxEnergy() + " te", 8, 18, 0x00E060);
     }
 
     @Override

@@ -10,57 +10,68 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import techno.TechnoMod;
+import techno.blocks.tile.BaseTileMachine;
 
 /**
- * Базовый класс машины для Forge 1.5.2.
- *
- * Текстура машины хранится в одном файле block<Machine>.png.
- * В этом файле лежат 12 сегментов (6 неактивных + 6 активных),
- * но в версии 1.5.2 через стандартный IconRegister нельзя напрямую выбрать
- * произвольный сегмент из одного icon-ресурса без отдельного кастомного рендера.
- * Поэтому на данном этапе подключается единый atlas-икон, а детализация сегментов
- * будет выводиться отдельным block renderer-классом на следующем шаге.
+ * Базовый класс машины с 12-сегментной текстурой (6 idle + 6 active).
  */
 public abstract class BaseBlockMachine extends BlockContainer {
     @SideOnly(Side.CLIENT)
-    protected Icon atlasIcon;
+    protected Icon[] textures;
 
-    private final String atlasTextureName;
+    private final String textureName;
 
-    protected BaseBlockMachine(int id, String unlocalizedName, String atlasTextureName) {
+    /**
+     * Таблица пересчета стороны+направления в индекс спрайта.
+     */
+    public static final int[][] sideAndFacingToSpriteOffset = new int[][]{{3, 2, 0, 0, 0, 0}, {2, 3, 1, 1, 1, 1}, {1, 1, 3, 2, 5, 4}, {0, 0, 2, 3, 4, 5}, {4, 5, 4, 5, 3, 2}, {5, 4, 5, 4, 2, 3}};
+
+    protected BaseBlockMachine(int id, String unlocalizedName, String textureName) {
         super(id, Material.iron);
         setCreativeTab(TechnoMod.TAB_BLOCKS);
         setHardness(3.0F);
         setResistance(8.0F);
         setUnlocalizedName(unlocalizedName);
-        this.atlasTextureName = atlasTextureName;
+        this.textureName = textureName;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister reg) {
-        atlasIcon = reg.registerIcon("technomod:" + atlasTextureName);
-    }
-
-    @Override
-    public int onBlockPlaced(World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata) {
-        return side;
+        textures = new Icon[12];
+        for (int i = 0; i < 12; i++) {
+            textures[i] = reg.registerIcon("technomod:" + textureName + "." + i);
+        }
     }
 
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving placer, ItemStack itemStack) {
         int yaw = (int) Math.floor((placer.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
         int front = yaw == 0 ? ForgeDirection.NORTH.ordinal() : yaw == 1 ? ForgeDirection.EAST.ordinal() : yaw == 2 ? ForgeDirection.SOUTH.ordinal() : ForgeDirection.WEST.ordinal();
-        world.setBlockMetadataWithNotify(x, y, z, front, 2);
+        world.setBlockMetadataWithNotify(x, y, z, front & 7, 2);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public Icon getIcon(int side, int meta) {
-        return atlasIcon;
+        int facing = meta & 7;
+        int sub = sideAndFacingToSpriteOffset[side][facing % 6];
+        return textures[sub];
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public Icon getIcon(IBlockAccess world, int x, int y, int z, int side) {
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+        int meta = world.getBlockMetadata(x, y, z);
+        int facing = meta & 7;
+        boolean active = te instanceof BaseTileMachine && ((BaseTileMachine) te).isActive();
+        int sub = sideAndFacingToSpriteOffset[side][facing % 6] + (active ? 6 : 0);
+        return textures[sub];
     }
 
     @Override
