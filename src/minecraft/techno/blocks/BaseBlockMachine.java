@@ -70,7 +70,7 @@ public abstract class BaseBlockMachine extends BlockContainer {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public Icon getIcon(IBlockAccess world, int x, int y, int z, int side) {
+    public Icon getBlockTexture(IBlockAccess world, int x, int y, int z, int side) {
         int facing = world.getBlockMetadata(x, y, z) & 7;
         return pick(side, facing);
     }

@@ -16,7 +16,7 @@ import net.minecraftforge.common.ForgeDirection;
  * - защищена от повторного тика в тот же world tick,
  * - чистит невалидные тайлы,
  * - учитывает приоритеты узлов,
- * - переносит энергию только в пределах реально извлеченного объёма.
+ * - переносит энергию без потери в «никуда».
  */
 public class EnergyNetwork {
     private final Set<IEnergySource> sources = new HashSet<IEnergySource>();
@@ -49,13 +49,7 @@ public class EnergyNetwork {
         Collections.sort(sourceList, castComparator());
         Collections.sort(sinkList, castComparator());
 
-        int totalDemand = calculateDemand(sinkList);
-        if (totalDemand <= 0) return;
-
-        int energyPool = extractFromSources(sourceList, totalDemand);
-        if (energyPool <= 0) return;
-
-        transferredThisTick = distributeToSinks(sinkList, energyPool);
+        transferEnergy(sourceList, sinkList);
     }
 
     public long getTransferredThisTick() { return transferredThisTick; }
@@ -72,44 +66,46 @@ public class EnergyNetwork {
         lastWorldTick = tag.getLong("LastWorldTick");
     }
 
-    private int calculateDemand(List<IEnergySink> sinkList) {
-        int demanded = 0;
-        for (IEnergySink sink : sinkList) {
-            if (!sink.canConnectEnergy(ForgeDirection.UNKNOWN)) continue;
-            demanded += Math.max(0, sink.receiveEnergy(ForgeDirection.UNKNOWN, Integer.MAX_VALUE / 4, true));
-            if (demanded < 0) return Integer.MAX_VALUE / 2;
-        }
-        return demanded;
-    }
-
-    private int extractFromSources(List<IEnergySource> sourceList, int demandLimit) {
-        int extractedTotal = 0;
-        int remainingNeed = demandLimit;
-
-        for (IEnergySource source : sourceList) {
-            if (remainingNeed <= 0) break;
-            if (!source.canConnectEnergy(ForgeDirection.UNKNOWN)) continue;
-            int extracted = Math.max(0, source.extractEnergy(ForgeDirection.UNKNOWN, remainingNeed, false));
-            extractedTotal += extracted;
-            remainingNeed -= extracted;
-        }
-
-        return extractedTotal;
-    }
-
-    private int distributeToSinks(List<IEnergySink> sinkList, int available) {
-        int transferred = 0;
-        int remaining = available;
+    private void transferEnergy(List<IEnergySource> sourceList, List<IEnergySink> sinkList) {
+        int sourceIndex = 0;
+        int sourceAvailable = 0;
 
         for (IEnergySink sink : sinkList) {
-            if (remaining <= 0) break;
             if (!sink.canConnectEnergy(ForgeDirection.UNKNOWN)) continue;
-            int accepted = Math.max(0, sink.receiveEnergy(ForgeDirection.UNKNOWN, remaining, false));
-            remaining -= accepted;
-            transferred += accepted;
-        }
 
-        return transferred;
+            int need = Math.max(0, sink.receiveEnergy(ForgeDirection.UNKNOWN, Integer.MAX_VALUE / 4, true));
+            if (need <= 0) continue;
+
+            while (need > 0) {
+                if (sourceAvailable <= 0) {
+                    sourceAvailable = pullFromNextSource(sourceList, sourceIndex, need);
+                    if (sourceAvailable <= 0) {
+                        sourceIndex++;
+                        while (sourceIndex < sourceList.size()) {
+                            sourceAvailable = pullFromNextSource(sourceList, sourceIndex, need);
+                            if (sourceAvailable > 0) break;
+                            sourceIndex++;
+                        }
+                        if (sourceAvailable <= 0) return;
+                    }
+                }
+
+                int offer = Math.min(sourceAvailable, need);
+                int accepted = Math.max(0, sink.receiveEnergy(ForgeDirection.UNKNOWN, offer, false));
+                sourceAvailable -= accepted;
+                need -= accepted;
+                transferredThisTick += accepted;
+
+                if (accepted <= 0) break;
+            }
+        }
+    }
+
+    private int pullFromNextSource(List<IEnergySource> sourceList, int sourceIndex, int limit) {
+        if (sourceIndex < 0 || sourceIndex >= sourceList.size()) return 0;
+        IEnergySource source = sourceList.get(sourceIndex);
+        if (!source.canConnectEnergy(ForgeDirection.UNKNOWN)) return 0;
+        return Math.max(0, source.extractEnergy(ForgeDirection.UNKNOWN, limit, false));
     }
 
     private void cleanupInvalidNodes() {
