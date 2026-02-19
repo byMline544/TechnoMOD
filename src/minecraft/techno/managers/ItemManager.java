@@ -17,11 +17,17 @@ public final class ItemManager {
     public static ItemDust dustBronze;
     public static ItemDust dustTin;
     public static ItemDust dustCopper;
+    public static ItemIngot ingotUranium;
+    public static ItemDust dustUranium;
 
     public static ItemComponent plateBronze;
     public static ItemComponent circuitBasic;
     public static ItemComponent battery;
     public static ItemComponent cableItem;
+    public static ItemComponent energyCrystal;
+    public static ItemComponent lapotronCrystal;
+    public static ItemComponent machineCasing;
+    public static ItemComponent reactorCore;
 
     public static ItemTechElectricArmor jetpack;
     public static ItemTechElectricArmor nanoHelmet;
@@ -42,11 +48,17 @@ public final class ItemManager {
         dustTin = new ItemDust(5003, "dustTin");
         ingotCopper = new ItemIngot(5004, "ingotCopper");
         dustCopper = new ItemDust(5005, "dustCopper");
+        ingotUranium = new ItemIngot(5019, "ingotUranium");
+        dustUranium = new ItemDust(5020, "dustUranium");
 
         plateBronze = new ItemComponent(5006, "plateBronze");
         circuitBasic = new ItemComponent(5007, "circuitBasic");
         battery = new ItemComponent(5008, "battery");
         cableItem = new ItemComponent(5009, "cableItem");
+        energyCrystal = new ItemComponent(5021, "energyCrystal");
+        lapotronCrystal = new ItemComponent(5022, "lapotronCrystal");
+        machineCasing = new ItemComponent(5023, "machineCasing");
+        reactorCore = new ItemComponent(5024, "reactorCore");
 
         jetpack = new ItemTechElectricArmor(5010, EnumArmorMaterial.IRON, 0, 1, "jetpack", 120000);
         nanoHelmet = new ItemTechElectricArmor(5011, EnumArmorMaterial.DIAMOND, 0, 0, "nanoHelmet", 200000);
@@ -64,10 +76,16 @@ public final class ItemManager {
         GameRegistry.registerItem(dustTin, "dustTin");
         GameRegistry.registerItem(ingotCopper, "ingotCopper");
         GameRegistry.registerItem(dustCopper, "dustCopper");
+        GameRegistry.registerItem(ingotUranium, "ingotUranium");
+        GameRegistry.registerItem(dustUranium, "dustUranium");
         GameRegistry.registerItem(plateBronze, "plateBronze");
         GameRegistry.registerItem(circuitBasic, "circuitBasic");
         GameRegistry.registerItem(battery, "battery");
         GameRegistry.registerItem(cableItem, "cableItem");
+        GameRegistry.registerItem(energyCrystal, "energyCrystal");
+        GameRegistry.registerItem(lapotronCrystal, "lapotronCrystal");
+        GameRegistry.registerItem(machineCasing, "machineCasing");
+        GameRegistry.registerItem(reactorCore, "reactorCore");
         GameRegistry.registerItem(jetpack, "jetpack");
         GameRegistry.registerItem(nanoHelmet, "nanoHelmet");
         GameRegistry.registerItem(nanoChest, "nanoChest");
@@ -90,6 +108,12 @@ public final class ItemManager {
         cpw.mods.fml.common.registry.LanguageRegistry.addName(circuitBasic, "Базовая микросхема");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(battery, "Батарея");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(cableItem, "Кабель");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(ingotUranium, "Урановый слиток");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(dustUranium, "Урановая пыль");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(energyCrystal, "Энерго-кристалл");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(lapotronCrystal, "Лапотрон-кристалл");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(machineCasing, "Корпус механизма");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(reactorCore, "Реакторный стержень");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(jetpack, "Джетпак");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(nanoHelmet, "Нано шлем");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(nanoChest, "Нано кираса");

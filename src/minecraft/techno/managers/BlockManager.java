@@ -7,9 +7,11 @@ import techno.blocks.BlockSolarPanel;
 import techno.blocks.BlockCable;
 import techno.blocks.BlockCrusher;
 import techno.blocks.BlockCompressor;
+import techno.blocks.BlockBatBox;
 import techno.blocks.ore.BlockOreBronze;
 import techno.blocks.ore.BlockOreTin;
 import techno.blocks.ore.BlockOreCopper;
+import techno.blocks.ore.BlockOreUranium;
 
 /**
  * Регистрация блоков мода.
@@ -24,6 +26,8 @@ public final class BlockManager {
     public static BlockCable cable;
     public static BlockCrusher crusher;
     public static BlockCompressor compressor;
+    public static BlockBatBox batBox;
+    public static BlockOreUranium oreUranium;
 
     private BlockManager() {}
 
@@ -37,6 +41,8 @@ public final class BlockManager {
         cable = new BlockCable(2305);
         crusher = new BlockCrusher(2306);
         compressor = new BlockCompressor(2307);
+        batBox = new BlockBatBox(2309);
+        oreUranium = new BlockOreUranium(2310);
 
         GameRegistry.registerBlock(generatorCoal, "generatorCoal");
         GameRegistry.registerBlock(solarPanel, "solarPanel");
@@ -47,6 +53,8 @@ public final class BlockManager {
         GameRegistry.registerBlock(cable, "cable");
         GameRegistry.registerBlock(crusher, "crusher");
         GameRegistry.registerBlock(compressor, "compressor");
+        GameRegistry.registerBlock(batBox, "batBox");
+        GameRegistry.registerBlock(oreUranium, "oreUranium");
     }
     public static void registerNames() {
         cpw.mods.fml.common.registry.LanguageRegistry.addName(generatorCoal, "Угольный генератор");
@@ -58,6 +66,8 @@ public final class BlockManager {
         cpw.mods.fml.common.registry.LanguageRegistry.addName(cable, "Медный кабель");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(crusher, "Дробитель");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(compressor, "Компрессор");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(batBox, "BatBox");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(oreUranium, "Урановая руда");
     }
 
 }

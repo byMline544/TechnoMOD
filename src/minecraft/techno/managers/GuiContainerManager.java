@@ -10,16 +10,19 @@ import techno.blocks.container.ContainerGeneratorCoal;
 import techno.blocks.container.ContainerSolarPanel;
 import techno.blocks.container.ContainerCompressor;
 import techno.blocks.container.ContainerCrusher;
+import techno.blocks.container.ContainerBatBox;
 import techno.blocks.gui.GuiElectricFurnace;
 import techno.blocks.gui.GuiGeneratorCoal;
 import techno.blocks.gui.GuiSolarPanel;
 import techno.blocks.gui.GuiCrusher;
 import techno.blocks.gui.GuiCompressor;
+import techno.blocks.gui.GuiBatBox;
 import techno.blocks.tile.TileElectricFurnace;
 import techno.blocks.tile.TileGeneratorCoal;
 import techno.blocks.tile.TileSolarPanel;
 import techno.blocks.tile.TileCrusher;
 import techno.blocks.tile.TileCompressor;
+import techno.blocks.tile.TileBatBox;
 
 /**
  * Регистрация GUI обработчика для открытия контейнеров/GUI машин.
@@ -32,6 +35,7 @@ public final class GuiContainerManager {
     public static final int GUI_ELECTRIC_FURNACE = 3;
     public static final int GUI_CRUSHER = 4;
     public static final int GUI_COMPRESSOR = 5;
+    public static final int GUI_BATBOX = 6;
 
     public static void init() {
         NetworkRegistry.instance().registerGuiHandler(TechnoMod.instance, new TechnoGuiHandler());
@@ -55,6 +59,9 @@ public final class GuiContainerManager {
             if (id == GUI_COMPRESSOR) {
                 return new ContainerCompressor(player.inventory, (TileCompressor) world.getBlockTileEntity(x, y, z));
             }
+            if (id == GUI_BATBOX) {
+                return new ContainerBatBox(player.inventory, (TileBatBox) world.getBlockTileEntity(x, y, z));
+            }
 
             return null;
         }
@@ -75,6 +82,9 @@ public final class GuiContainerManager {
             }
             if (id == GUI_COMPRESSOR) {
                 return new GuiCompressor(player.inventory, (TileCompressor) world.getBlockTileEntity(x, y, z));
+            }
+            if (id == GUI_BATBOX) {
+                return new GuiBatBox(player.inventory, (TileBatBox) world.getBlockTileEntity(x, y, z));
             }
 
             return null;

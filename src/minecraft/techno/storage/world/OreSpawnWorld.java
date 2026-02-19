@@ -18,6 +18,7 @@ public class OreSpawnWorld implements IWorldGenerator {
         generateOre(BlockManager.oreTin.blockID, world, random, chunkX, chunkZ, 8, 8, 12, 64);
         generateOre(BlockManager.oreBronze.blockID, world, random, chunkX, chunkZ, 6, 6, 16, 48);
         generateOre(BlockManager.oreCopper.blockID, world, random, chunkX, chunkZ, 9, 8, 20, 72);
+        generateOre(BlockManager.oreUranium.blockID, world, random, chunkX, chunkZ, 3, 4, 5, 28);
     }
 
     private void generateOre(int blockId, World world, Random random, int chunkX, int chunkZ, int veinsPerChunk, int veinSize, int minY, int maxY) {

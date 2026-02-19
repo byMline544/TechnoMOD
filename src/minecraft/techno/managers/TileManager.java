@@ -7,6 +7,7 @@ import techno.blocks.tile.TileSolarPanel;
 import techno.blocks.tile.TileCable;
 import techno.blocks.tile.TileCrusher;
 import techno.blocks.tile.TileCompressor;
+import techno.blocks.tile.TileBatBox;
 
 /**
  * Регистрация TileEntity.
@@ -21,5 +22,6 @@ public final class TileManager {
         GameRegistry.registerTileEntity(TileCable.class, "TE_Cable");
         GameRegistry.registerTileEntity(TileCrusher.class, "TE_Crusher");
         GameRegistry.registerTileEntity(TileCompressor.class, "TE_Compressor");
+        GameRegistry.registerTileEntity(TileBatBox.class, "TE_BatBox");
     }
 }

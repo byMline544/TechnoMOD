@@ -12,6 +12,8 @@ import techno.api.energy.IEnergySource;
 public class TileCable extends TileEntity implements IEnergyNode, IEnergySource, IEnergySink {
     private int energy;
     private static final int MAX = 2048;
+    private static final int THROUGHPUT = 128;
+    private static final int LOSS = 1;
 
     @Override
     public void updateEntity() {
@@ -21,8 +23,10 @@ public class TileCable extends TileEntity implements IEnergyNode, IEnergySource,
             TileEntity te = worldObj.getBlockTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
             if (te instanceof IEnergySource && !(te instanceof TileCable)) {
                 IEnergySource src = (IEnergySource) te;
-                int got = src.extractEnergy(dir.getOpposite(), Math.min(64, MAX - energy), false);
-                energy += got;
+                int request = Math.min(THROUGHPUT, MAX - energy);
+                int got = src.extractEnergy(dir.getOpposite(), request, false);
+                int afterLoss = Math.max(0, got - LOSS);
+                energy += afterLoss;
             }
         }
 
@@ -31,7 +35,7 @@ public class TileCable extends TileEntity implements IEnergyNode, IEnergySource,
             TileEntity te = worldObj.getBlockTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
             if (te instanceof IEnergySink && te != this) {
                 IEnergySink sink = (IEnergySink) te;
-                int sent = sink.receiveEnergy(dir.getOpposite(), Math.min(64, energy), false);
+                int sent = sink.receiveEnergy(dir.getOpposite(), Math.min(THROUGHPUT, energy), false);
                 energy -= sent;
             }
         }
