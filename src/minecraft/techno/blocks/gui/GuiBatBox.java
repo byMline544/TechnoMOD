@@ -19,7 +19,7 @@ public class GuiBatBox extends BaseGuiMachine {
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        fontRenderer.drawString("BatBox", 8, 6, 0x404040);
+        fontRenderer.drawString("БатБокс", 8, 6, 0x404040);
         fontRenderer.drawString("Энергия: " + tile.getStoredEnergy() + "/" + tile.getMaxEnergy() + " te", 8, 18, 0x00E060);
     }
 

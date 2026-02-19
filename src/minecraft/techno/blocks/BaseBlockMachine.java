@@ -14,36 +14,25 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import techno.TechnoMod;
-import techno.blocks.tile.BaseTileMachine;
 
 /**
- * Базовый класс машин с раздельными текстурами состояний.
+ * Базовый класс машин с единой суффиксной схемой текстур (без idle/active).
  *
- * Именование текстур (по требованию):
+ * Требуемое именование:
  * - <name>_bottom  -> задняя сторона
  * - <name>_front   -> лицевая сторона
  * - <name>_top     -> нижняя сторона
  * - <name>_side    -> остальные стороны
- * Для активного состояния: <name>_active_<suffix>.
  */
 public abstract class BaseBlockMachine extends BlockContainer {
     @SideOnly(Side.CLIENT)
-    protected Icon idleBottom;
+    protected Icon texBottom;
     @SideOnly(Side.CLIENT)
-    protected Icon idleFront;
+    protected Icon texFront;
     @SideOnly(Side.CLIENT)
-    protected Icon idleTop;
+    protected Icon texTop;
     @SideOnly(Side.CLIENT)
-    protected Icon idleSide;
-
-    @SideOnly(Side.CLIENT)
-    protected Icon activeBottom;
-    @SideOnly(Side.CLIENT)
-    protected Icon activeFront;
-    @SideOnly(Side.CLIENT)
-    protected Icon activeTop;
-    @SideOnly(Side.CLIENT)
-    protected Icon activeSide;
+    protected Icon texSide;
 
     private final String textureName;
 
@@ -59,15 +48,10 @@ public abstract class BaseBlockMachine extends BlockContainer {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister reg) {
-        idleBottom = reg.registerIcon("technomod:" + textureName + "_bottom");
-        idleFront = reg.registerIcon("technomod:" + textureName + "_front");
-        idleTop = reg.registerIcon("technomod:" + textureName + "_top");
-        idleSide = reg.registerIcon("technomod:" + textureName + "_side");
-
-        activeBottom = reg.registerIcon("technomod:" + textureName + "_active_bottom");
-        activeFront = reg.registerIcon("technomod:" + textureName + "_active_front");
-        activeTop = reg.registerIcon("technomod:" + textureName + "_active_top");
-        activeSide = reg.registerIcon("technomod:" + textureName + "_active_side");
+        texBottom = reg.registerIcon("technomod:" + textureName + "_bottom");
+        texFront = reg.registerIcon("technomod:" + textureName + "_front");
+        texTop = reg.registerIcon("technomod:" + textureName + "_top");
+        texSide = reg.registerIcon("technomod:" + textureName + "_side");
     }
 
     @Override
@@ -81,25 +65,18 @@ public abstract class BaseBlockMachine extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public Icon getIcon(int side, int meta) {
         int facing = meta & 7;
-        return pick(side, facing, false);
+        return pick(side, facing);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public Icon getIcon(IBlockAccess world, int x, int y, int z, int side) {
-        TileEntity te = world.getBlockTileEntity(x, y, z);
         int facing = world.getBlockMetadata(x, y, z) & 7;
-        boolean active = te instanceof BaseTileMachine && ((BaseTileMachine) te).isActive();
-        return pick(side, facing, active);
+        return pick(side, facing);
     }
 
     @SideOnly(Side.CLIENT)
-    private Icon pick(int side, int facing, boolean active) {
-        Icon texBottom = active ? activeBottom : idleBottom;
-        Icon texFront = active ? activeFront : idleFront;
-        Icon texTop = active ? activeTop : idleTop;
-        Icon texSide = active ? activeSide : idleSide;
-
+    private Icon pick(int side, int facing) {
         if (side == facing) return texFront;
 
         int back = ForgeDirection.getOrientation(facing).getOpposite().ordinal();

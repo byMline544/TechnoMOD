@@ -66,7 +66,7 @@ public final class BlockManager {
         cpw.mods.fml.common.registry.LanguageRegistry.addName(cable, "Медный кабель");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(crusher, "Дробитель");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(compressor, "Компрессор");
-        cpw.mods.fml.common.registry.LanguageRegistry.addName(batBox, "BatBox");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(batBox, "БатБокс");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(oreUranium, "Урановая руда");
     }
 
