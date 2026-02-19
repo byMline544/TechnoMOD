@@ -5,6 +5,8 @@ import techno.blocks.BlockElectricFurnace;
 import techno.blocks.BlockGeneratorCoal;
 import techno.blocks.BlockSolarPanel;
 import techno.blocks.BlockCable;
+import techno.blocks.BlockCrusher;
+import techno.blocks.BlockCompressor;
 import techno.blocks.ore.BlockOreBronze;
 import techno.blocks.ore.BlockOreTin;
 
@@ -18,6 +20,8 @@ public final class BlockManager {
     public static BlockOreBronze oreBronze;
     public static BlockOreTin oreTin;
     public static BlockCable cable;
+    public static BlockCrusher crusher;
+    public static BlockCompressor compressor;
 
     private BlockManager() {}
 
@@ -28,6 +32,8 @@ public final class BlockManager {
         oreBronze = new BlockOreBronze(2303);
         oreTin = new BlockOreTin(2304);
         cable = new BlockCable(2305);
+        crusher = new BlockCrusher(2306);
+        compressor = new BlockCompressor(2307);
 
         GameRegistry.registerBlock(generatorCoal, "generatorCoal");
         GameRegistry.registerBlock(solarPanel, "solarPanel");
@@ -35,6 +41,8 @@ public final class BlockManager {
         GameRegistry.registerBlock(oreBronze, "oreBronze");
         GameRegistry.registerBlock(oreTin, "oreTin");
         GameRegistry.registerBlock(cable, "cable");
+        GameRegistry.registerBlock(crusher, "crusher");
+        GameRegistry.registerBlock(compressor, "compressor");
     }
     public static void registerNames() {
         cpw.mods.fml.common.registry.LanguageRegistry.addName(generatorCoal, "Угольный генератор");
@@ -43,6 +51,8 @@ public final class BlockManager {
         cpw.mods.fml.common.registry.LanguageRegistry.addName(oreBronze, "Бронзовая руда");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(oreTin, "Оловянная руда");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(cable, "Медный кабель");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(crusher, "Дробитель");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(compressor, "Компрессор");
     }
 
 }
