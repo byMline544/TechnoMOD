@@ -5,11 +5,12 @@ import net.minecraftforge.common.ForgeDirection;
 import techno.api.energy.IEnergyNode;
 import techno.api.energy.IEnergySink;
 import techno.api.energy.IEnergySource;
+import techno.api.energy.IEnergyPriority;
 
 /**
  * Тайл кабеля: буферизует и передает энергию соседям.
  */
-public class TileCable extends TileEntity implements IEnergyNode, IEnergySource, IEnergySink {
+public class TileCable extends TileEntity implements IEnergyNode, IEnergySource, IEnergySink, IEnergyPriority {
     private int energy;
     private static final int MAX = 2048;
     private static final int THROUGHPUT = 128;
@@ -44,6 +45,7 @@ public class TileCable extends TileEntity implements IEnergyNode, IEnergySource,
     @Override public int getStoredEnergy() { return energy; }
     @Override public int getMaxEnergy() { return MAX; }
     @Override public void setStoredEnergy(int amount) { energy = Math.max(0, Math.min(MAX, amount)); }
+    @Override public int getEnergyPriority() { return 60; }
     @Override public boolean canConnectEnergy(ForgeDirection side) { return true; }
 
     @Override

@@ -17,18 +17,35 @@ import techno.TechnoMod;
 import techno.blocks.tile.BaseTileMachine;
 
 /**
- * Базовый класс машины с 12-сегментной текстурой (6 idle + 6 active).
+ * Базовый класс машин с раздельными текстурами состояний.
+ *
+ * Именование текстур (по требованию):
+ * - <name>_bottom  -> задняя сторона
+ * - <name>_front   -> лицевая сторона
+ * - <name>_top     -> нижняя сторона
+ * - <name>_side    -> остальные стороны
+ * Для активного состояния: <name>_active_<suffix>.
  */
 public abstract class BaseBlockMachine extends BlockContainer {
     @SideOnly(Side.CLIENT)
-    protected Icon[] textures;
+    protected Icon idleBottom;
+    @SideOnly(Side.CLIENT)
+    protected Icon idleFront;
+    @SideOnly(Side.CLIENT)
+    protected Icon idleTop;
+    @SideOnly(Side.CLIENT)
+    protected Icon idleSide;
+
+    @SideOnly(Side.CLIENT)
+    protected Icon activeBottom;
+    @SideOnly(Side.CLIENT)
+    protected Icon activeFront;
+    @SideOnly(Side.CLIENT)
+    protected Icon activeTop;
+    @SideOnly(Side.CLIENT)
+    protected Icon activeSide;
 
     private final String textureName;
-
-    /**
-     * Таблица пересчета стороны+направления в индекс спрайта.
-     */
-    public static final int[][] sideAndFacingToSpriteOffset = new int[][]{{3, 2, 0, 0, 0, 0}, {2, 3, 1, 1, 1, 1}, {1, 1, 3, 2, 5, 4}, {0, 0, 2, 3, 4, 5}, {4, 5, 4, 5, 3, 2}, {5, 4, 5, 4, 2, 3}};
 
     protected BaseBlockMachine(int id, String unlocalizedName, String textureName) {
         super(id, Material.iron);
@@ -42,10 +59,15 @@ public abstract class BaseBlockMachine extends BlockContainer {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister reg) {
-        textures = new Icon[12];
-        for (int i = 0; i < 12; i++) {
-            textures[i] = reg.registerIcon("technomod:" + textureName + "." + i);
-        }
+        idleBottom = reg.registerIcon("technomod:" + textureName + "_bottom");
+        idleFront = reg.registerIcon("technomod:" + textureName + "_front");
+        idleTop = reg.registerIcon("technomod:" + textureName + "_top");
+        idleSide = reg.registerIcon("technomod:" + textureName + "_side");
+
+        activeBottom = reg.registerIcon("technomod:" + textureName + "_active_bottom");
+        activeFront = reg.registerIcon("technomod:" + textureName + "_active_front");
+        activeTop = reg.registerIcon("technomod:" + textureName + "_active_top");
+        activeSide = reg.registerIcon("technomod:" + textureName + "_active_side");
     }
 
     @Override
@@ -59,31 +81,41 @@ public abstract class BaseBlockMachine extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public Icon getIcon(int side, int meta) {
         int facing = meta & 7;
-        int sub = sideAndFacingToSpriteOffset[side][facing % 6];
-        return textures[sub];
+        return pick(side, facing, false);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public Icon getIcon(IBlockAccess world, int x, int y, int z, int side) {
         TileEntity te = world.getBlockTileEntity(x, y, z);
-        int meta = world.getBlockMetadata(x, y, z);
-        int facing = meta & 7;
+        int facing = world.getBlockMetadata(x, y, z) & 7;
         boolean active = te instanceof BaseTileMachine && ((BaseTileMachine) te).isActive();
-        int sub = sideAndFacingToSpriteOffset[side][facing % 6] + (active ? 6 : 0);
-        return textures[sub];
+        return pick(side, facing, active);
+    }
+
+    @SideOnly(Side.CLIENT)
+    private Icon pick(int side, int facing, boolean active) {
+        Icon texBottom = active ? activeBottom : idleBottom;
+        Icon texFront = active ? activeFront : idleFront;
+        Icon texTop = active ? activeTop : idleTop;
+        Icon texSide = active ? activeSide : idleSide;
+
+        if (side == facing) return texFront;
+
+        int back = ForgeDirection.getOrientation(facing).getOpposite().ordinal();
+        if (side == back) return texBottom;
+
+        if (side == ForgeDirection.DOWN.ordinal()) return texTop;
+
+        return texSide;
     }
 
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float px, float py, float pz) {
-        if (!world.isRemote) {
-            player.openGui(TechnoMod.instance, getGuiId(), world, x, y, z);
-        }
+        if (!world.isRemote) player.openGui(TechnoMod.instance, getGuiId(), world, x, y, z);
         return true;
     }
 
     protected abstract int getGuiId();
-
-    @Override
-    public abstract TileEntity createNewTileEntity(World world);
+    @Override public abstract TileEntity createNewTileEntity(World world);
 }

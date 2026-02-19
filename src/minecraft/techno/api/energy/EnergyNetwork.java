@@ -1,16 +1,22 @@
 package techno.api.energy;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 
 /**
- * Энергосеть в стиле IC2:
- * - хранит набор источников и потребителей,
- * - распределяет энергию,
- * - сохраняет статистику в NBT,
- * - защищается от множественного тика за один world tick.
+ * Энергосеть:
+ * - защищена от повторного тика в тот же world tick,
+ * - чистит невалидные тайлы,
+ * - учитывает приоритеты узлов,
+ * - распределяет энергию по фактическому спросу потребителей.
  */
 public class EnergyNetwork {
     private final Set<IEnergySource> sources = new HashSet<IEnergySource>();
@@ -18,45 +24,71 @@ public class EnergyNetwork {
     private long transferredThisTick;
     private long lastWorldTick = Long.MIN_VALUE;
 
-    public void addSource(IEnergySource source) { sources.add(source); }
-    public void addSink(IEnergySink sink) { sinks.add(sink); }
+    private static final Comparator<IEnergyNode> NODE_PRIORITY_COMPARATOR = new Comparator<IEnergyNode>() {
+        @Override
+        public int compare(IEnergyNode a, IEnergyNode b) {
+            return getPriority(b) - getPriority(a);
+        }
+    };
+
+    public void addSource(IEnergySource source) { if (source != null) sources.add(source); }
+    public void addSink(IEnergySink sink) { if (sink != null) sinks.add(sink); }
     public void removeSource(IEnergySource source) { sources.remove(source); }
     public void removeSink(IEnergySink sink) { sinks.remove(sink); }
 
-    /**
-     * Обновление сети на конкретном world tick.
-     * Если уже обновлялись в этот же тик, повторно логика не выполняется.
-     */
     public void tick(long worldTick) {
-        if (lastWorldTick == worldTick) {
-            return;
-        }
+        if (lastWorldTick == worldTick) return;
         lastWorldTick = worldTick;
-
         transferredThisTick = 0L;
-        if (sources.isEmpty() || sinks.isEmpty()) {
-            return;
-        }
+
+        cleanupInvalidNodes();
+        if (sources.isEmpty() || sinks.isEmpty()) return;
+
+        List<IEnergySource> sourceList = new ArrayList<IEnergySource>(sources);
+        List<IEnergySink> sinkList = new ArrayList<IEnergySink>(sinks);
+        Collections.sort(sourceList, castComparator());
+        Collections.sort(sinkList, castComparator());
 
         int offered = 0;
-        for (IEnergySource source : sources) {
-            offered += source.extractEnergy(ForgeDirection.UNKNOWN, Integer.MAX_VALUE / 4, true);
+        for (IEnergySource source : sourceList) {
+            if (!source.canConnectEnergy(ForgeDirection.UNKNOWN)) continue;
+            offered += Math.max(0, source.extractEnergy(ForgeDirection.UNKNOWN, Integer.MAX_VALUE / 4, true));
+            if (offered < 0) {
+                offered = Integer.MAX_VALUE / 2;
+                break;
+            }
+        }
+        if (offered <= 0) return;
+
+        int demanded = 0;
+        for (IEnergySink sink : sinkList) {
+            if (!sink.canConnectEnergy(ForgeDirection.UNKNOWN)) continue;
+            demanded += Math.max(0, sink.receiveEnergy(ForgeDirection.UNKNOWN, Integer.MAX_VALUE / 4, true));
+            if (demanded < 0) {
+                demanded = Integer.MAX_VALUE / 2;
+                break;
+            }
         }
 
-        int remaining = offered;
-        for (IEnergySink sink : sinks) {
-            if (remaining <= 0) break;
-            int accepted = sink.receiveEnergy(ForgeDirection.UNKNOWN, remaining, false);
-            remaining -= accepted;
-            transferredThisTick += accepted;
+        int transferable = Math.min(offered, demanded <= 0 ? offered : demanded);
+        if (transferable <= 0) return;
+
+        int acceptedTotal = 0;
+        for (IEnergySink sink : sinkList) {
+            if (transferable <= 0 || !sink.canConnectEnergy(ForgeDirection.UNKNOWN)) break;
+            int accepted = Math.max(0, sink.receiveEnergy(ForgeDirection.UNKNOWN, transferable, false));
+            transferable -= accepted;
+            acceptedTotal += accepted;
         }
 
-        int consumed = offered - remaining;
-        for (IEnergySource source : sources) {
-            if (consumed <= 0) break;
-            int took = source.extractEnergy(ForgeDirection.UNKNOWN, consumed, false);
-            consumed -= took;
+        int toExtract = acceptedTotal;
+        for (IEnergySource source : sourceList) {
+            if (toExtract <= 0 || !source.canConnectEnergy(ForgeDirection.UNKNOWN)) break;
+            int took = Math.max(0, source.extractEnergy(ForgeDirection.UNKNOWN, toExtract, false));
+            toExtract -= took;
         }
+
+        transferredThisTick = acceptedTotal - toExtract;
     }
 
     public long getTransferredThisTick() { return transferredThisTick; }
@@ -71,5 +103,39 @@ public class EnergyNetwork {
     public void readFromNBT(NBTTagCompound tag) {
         transferredThisTick = tag.getLong("TransferredTick");
         lastWorldTick = tag.getLong("LastWorldTick");
+    }
+
+    private void cleanupInvalidNodes() {
+        cleanupInvalidSources();
+        cleanupInvalidSinks();
+    }
+
+    private void cleanupInvalidSources() {
+        Iterator<IEnergySource> it = sources.iterator();
+        while (it.hasNext()) {
+            IEnergySource source = it.next();
+            if (isInvalidTile(source)) it.remove();
+        }
+    }
+
+    private void cleanupInvalidSinks() {
+        Iterator<IEnergySink> it = sinks.iterator();
+        while (it.hasNext()) {
+            IEnergySink sink = it.next();
+            if (isInvalidTile(sink)) it.remove();
+        }
+    }
+
+    private boolean isInvalidTile(Object node) {
+        return node == null || (node instanceof TileEntity && ((TileEntity) node).isInvalid());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends IEnergyNode> Comparator<T> castComparator() {
+        return (Comparator<T>) NODE_PRIORITY_COMPARATOR;
+    }
+
+    private static int getPriority(IEnergyNode node) {
+        return node instanceof IEnergyPriority ? ((IEnergyPriority) node).getEnergyPriority() : 0;
     }
 }

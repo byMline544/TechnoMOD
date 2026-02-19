@@ -7,11 +7,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import techno.api.energy.IEnergyNode;
+import techno.api.energy.IEnergyPriority;
 
 /**
  * Базовый tile машин с хранением энергии, инвентарем и NBT.
  */
-public abstract class BaseTileMachine extends TileEntity implements IEnergyNode, IInventory {
+public abstract class BaseTileMachine extends TileEntity implements IEnergyNode, IEnergyPriority, IInventory {
     protected int energy;
     protected int maxEnergy;
     protected final ItemStack[] inventory;
@@ -25,6 +26,7 @@ public abstract class BaseTileMachine extends TileEntity implements IEnergyNode,
     @Override public int getStoredEnergy() { return energy; }
     @Override public int getMaxEnergy() { return maxEnergy; }
     @Override public void setStoredEnergy(int amount) { energy = Math.max(0, Math.min(maxEnergy, amount)); }
+    @Override public int getEnergyPriority() { return 0; }
 
     public boolean isActive() { return active; }
 

@@ -56,6 +56,8 @@ public class TileBatBox extends BaseTileMachine implements IEnergySink, IEnergyS
         super.invalidate();
     }
 
+    @Override public int getEnergyPriority() { return 80; }
+
     @Override protected String getInventoryName() { return "batbox"; }
     @Override public boolean isStackValidForSlot(int i, ItemStack stack) { return false; }
 }

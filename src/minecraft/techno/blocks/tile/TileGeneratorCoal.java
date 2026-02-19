@@ -34,6 +34,8 @@ public class TileGeneratorCoal extends BaseTileGenerator {
         return TileEntityFurnace.getItemBurnTime(stack) > 0;
     }
 
+    @Override public int getEnergyPriority() { return 40; }
+
     @Override protected String getInventoryName() { return "generator.coal"; }
     @Override public boolean isStackValidForSlot(int i, ItemStack stack) { return i == 0 && canUseFuel(stack); }
 }

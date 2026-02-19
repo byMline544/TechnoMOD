@@ -18,5 +18,7 @@ public class TileSolarPanel extends BaseTileGenerator {
         }
     }
 
+    @Override public int getEnergyPriority() { return 30; }
+
     @Override protected String getInventoryName() { return "solar.panel"; }
 }

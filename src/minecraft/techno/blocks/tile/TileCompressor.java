@@ -54,6 +54,8 @@ public class TileCompressor extends BaseTileMachine implements IEnergySink {
     @Override public boolean canConnectEnergy(ForgeDirection side) { return true; }
     @Override public void validate() { super.validate(); if(worldObj!=null&&!worldObj.isRemote) GlobalEnergyNetworkRegistry.get(worldObj.provider.dimensionId).addSink(this); }
     @Override public void invalidate() { if(worldObj!=null&&!worldObj.isRemote) GlobalEnergyNetworkRegistry.get(worldObj.provider.dimensionId).removeSink(this); super.invalidate(); }
+    @Override public int getEnergyPriority() { return 100; }
+
     @Override protected String getInventoryName() { return "compressor"; }
     @Override public boolean isStackValidForSlot(int i, ItemStack stack) { return i==0; }
 }

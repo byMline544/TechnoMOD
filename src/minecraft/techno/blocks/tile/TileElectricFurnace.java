@@ -71,6 +71,8 @@ public class TileElectricFurnace extends BaseTileMachine implements IEnergySink 
         super.invalidate();
     }
 
+    @Override public int getEnergyPriority() { return 100; }
+
     @Override protected String getInventoryName() { return "electric.furnace"; }
     @Override public boolean isStackValidForSlot(int i, ItemStack stack) { return i == 0; }
 }
