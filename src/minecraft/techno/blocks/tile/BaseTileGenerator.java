@@ -13,7 +13,7 @@ public abstract class BaseTileGenerator extends BaseTileMachine implements IEner
     @Override
     public void updateEntity() {
         if (!worldObj.isRemote) {
-            GlobalEnergyNetworkRegistry.get(worldObj.provider.dimensionId).tick();
+            GlobalEnergyNetworkRegistry.get(worldObj.provider.dimensionId).tick(worldObj.getWorldTime());
         }
     }
 

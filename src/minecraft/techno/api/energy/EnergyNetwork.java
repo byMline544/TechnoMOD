@@ -6,15 +6,17 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 
 /**
- * Простая энергосеть в стиле IC2:
+ * Энергосеть в стиле IC2:
  * - хранит набор источников и потребителей,
- * - равномерно распределяет энергию,
- * - умеет сохранять состояние в NBT.
+ * - распределяет энергию,
+ * - сохраняет статистику в NBT,
+ * - защищается от множественного тика за один world tick.
  */
 public class EnergyNetwork {
     private final Set<IEnergySource> sources = new HashSet<IEnergySource>();
     private final Set<IEnergySink> sinks = new HashSet<IEnergySink>();
     private long transferredThisTick;
+    private long lastWorldTick = Long.MIN_VALUE;
 
     public void addSource(IEnergySource source) { sources.add(source); }
     public void addSink(IEnergySink sink) { sinks.add(sink); }
@@ -22,10 +24,15 @@ public class EnergyNetwork {
     public void removeSink(IEnergySink sink) { sinks.remove(sink); }
 
     /**
-     * Тиковое обновление сети:
-     * собираем энергию со всех источников и распределяем по потребителям.
+     * Обновление сети на конкретном world tick.
+     * Если уже обновлялись в этот же тик, повторно логика не выполняется.
      */
-    public void tick() {
+    public void tick(long worldTick) {
+        if (lastWorldTick == worldTick) {
+            return;
+        }
+        lastWorldTick = worldTick;
+
         transferredThisTick = 0L;
         if (sources.isEmpty() || sinks.isEmpty()) {
             return;
@@ -58,9 +65,11 @@ public class EnergyNetwork {
         tag.setLong("TransferredTick", transferredThisTick);
         tag.setInteger("SourcesCount", sources.size());
         tag.setInteger("SinksCount", sinks.size());
+        tag.setLong("LastWorldTick", lastWorldTick);
     }
 
     public void readFromNBT(NBTTagCompound tag) {
         transferredThisTick = tag.getLong("TransferredTick");
+        lastWorldTick = tag.getLong("LastWorldTick");
     }
 }
