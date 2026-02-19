@@ -17,6 +17,7 @@ public class TileBatBox extends BaseTileMachine implements IEnergySink, IEnergyS
     @Override
     public void updateEntity() {
         if (!worldObj.isRemote) {
+            techno.api.network.GlobalEnergyNetworkRegistry.get(worldObj.provider.dimensionId).tick(worldObj.getWorldTime());
             setActiveState(energy > 0);
         }
     }

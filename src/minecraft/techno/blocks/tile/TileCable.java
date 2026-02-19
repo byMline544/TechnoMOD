@@ -6,6 +6,7 @@ import techno.api.energy.IEnergyNode;
 import techno.api.energy.IEnergySink;
 import techno.api.energy.IEnergySource;
 import techno.api.energy.IEnergyPriority;
+import techno.api.network.GlobalEnergyNetworkRegistry;
 
 /**
  * Тайл кабеля: буферизует и передает энергию соседям.
@@ -19,6 +20,8 @@ public class TileCable extends TileEntity implements IEnergyNode, IEnergySource,
     @Override
     public void updateEntity() {
         if (worldObj.isRemote) return;
+
+        GlobalEnergyNetworkRegistry.get(worldObj.provider.dimensionId).tick(worldObj.getWorldTime());
 
         for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
             TileEntity te = worldObj.getBlockTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);

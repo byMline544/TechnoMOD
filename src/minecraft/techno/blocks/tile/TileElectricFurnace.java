@@ -73,6 +73,10 @@ public class TileElectricFurnace extends BaseTileMachine implements IEnergySink 
 
     @Override public int getEnergyPriority() { return 100; }
 
+
+    @Override public int getSyncProcessProgress() { return progress; }
+    @Override public void setSyncProcessProgress(int value) { progress = value; }
+
     @Override protected String getInventoryName() { return "electric.furnace"; }
     @Override public boolean isStackValidForSlot(int i, ItemStack stack) { return i == 0; }
 }

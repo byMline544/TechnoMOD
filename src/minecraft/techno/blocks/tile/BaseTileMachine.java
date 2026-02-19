@@ -26,9 +26,14 @@ public abstract class BaseTileMachine extends TileEntity implements IEnergyNode,
     @Override public int getStoredEnergy() { return energy; }
     @Override public int getMaxEnergy() { return maxEnergy; }
     @Override public void setStoredEnergy(int amount) { energy = Math.max(0, Math.min(maxEnergy, amount)); }
+    public void setMaxEnergyForSync(int value) { maxEnergy = Math.max(0, value); }
+    public void setActiveForSync(boolean value) { active = value; }
     @Override public int getEnergyPriority() { return 0; }
 
     public boolean isActive() { return active; }
+
+    public int getSyncProcessProgress() { return 0; }
+    public void setSyncProcessProgress(int value) {}
 
     protected void setActiveState(boolean value) {
         if (active != value) {

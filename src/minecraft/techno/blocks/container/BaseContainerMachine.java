@@ -3,15 +3,26 @@ package techno.blocks.container;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import techno.blocks.tile.BaseTileMachine;
 
 /**
- * Базовый контейнер машины с безопасным shift-click переносом.
+ * Базовый контейнер машины с безопасным shift-click переносом и синхронизацией GUI.
  */
 public abstract class BaseContainerMachine extends Container {
     protected final IInventory tile;
+    private int lastEnergy = Integer.MIN_VALUE;
+    private int lastMaxEnergy = Integer.MIN_VALUE;
+    private int lastProgress = Integer.MIN_VALUE;
+    private int lastActive = Integer.MIN_VALUE;
+
+    private int clientEnergyLow;
+    private int clientEnergyHigh;
+    private int clientMaxEnergyLow;
+    private int clientMaxEnergyHigh;
 
     protected BaseContainerMachine(InventoryPlayer playerInventory, IInventory tile) {
         this.tile = tile;
@@ -39,6 +50,66 @@ public abstract class BaseContainerMachine extends Container {
     }
 
     @Override
+    public void addCraftingToCrafters(ICrafting crafter) {
+        super.addCraftingToCrafters(crafter);
+        if (tile instanceof BaseTileMachine) {
+            BaseTileMachine machine = (BaseTileMachine) tile;
+            sendMachineState(crafter, machine);
+        }
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        if (!(tile instanceof BaseTileMachine)) return;
+
+        BaseTileMachine machine = (BaseTileMachine) tile;
+        int energy = machine.getStoredEnergy();
+        int maxEnergy = machine.getMaxEnergy();
+        int progress = machine.getSyncProcessProgress();
+        int active = machine.isActive() ? 1 : 0;
+
+        if (energy == lastEnergy && maxEnergy == lastMaxEnergy && progress == lastProgress && active == lastActive) return;
+
+        for (Object obj : crafters) {
+            sendMachineState((ICrafting) obj, machine);
+        }
+
+        lastEnergy = energy;
+        lastMaxEnergy = maxEnergy;
+        lastProgress = progress;
+        lastActive = active;
+    }
+
+    @Override
+    public void updateProgressBar(int id, int value) {
+        if (!(tile instanceof BaseTileMachine)) return;
+
+        BaseTileMachine machine = (BaseTileMachine) tile;
+
+        if (id == 0) clientEnergyLow = value & 0xFFFF;
+        else if (id == 1) clientEnergyHigh = value & 0xFFFF;
+        else if (id == 2) clientMaxEnergyLow = value & 0xFFFF;
+        else if (id == 3) clientMaxEnergyHigh = value & 0xFFFF;
+        else if (id == 4) machine.setSyncProcessProgress(value);
+        else if (id == 5) machine.setActiveForSync(value == 1);
+
+        machine.setMaxEnergyForSync((clientMaxEnergyHigh << 16) | clientMaxEnergyLow);
+        machine.setStoredEnergy((clientEnergyHigh << 16) | clientEnergyLow);
+    }
+
+    private void sendMachineState(ICrafting crafter, BaseTileMachine machine) {
+        int energy = machine.getStoredEnergy();
+        int maxEnergy = machine.getMaxEnergy();
+        crafter.sendProgressBarUpdate(this, 0, energy & 0xFFFF);
+        crafter.sendProgressBarUpdate(this, 1, (energy >>> 16) & 0xFFFF);
+        crafter.sendProgressBarUpdate(this, 2, maxEnergy & 0xFFFF);
+        crafter.sendProgressBarUpdate(this, 3, (maxEnergy >>> 16) & 0xFFFF);
+        crafter.sendProgressBarUpdate(this, 4, machine.getSyncProcessProgress());
+        crafter.sendProgressBarUpdate(this, 5, machine.isActive() ? 1 : 0);
+    }
+
+    @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int index) {
         ItemStack moved = null;
         Slot slot = (Slot) inventorySlots.get(index);
@@ -63,13 +134,9 @@ public abstract class BaseContainerMachine extends Container {
         return moved;
     }
 
-    /**
-     * Перенос из инвентаря игрока в слоты машины с проверкой Slot.isItemValid.
-     */
     private boolean mergeToMachineSlots(ItemStack stack, int machineSlots) {
         boolean changed = false;
 
-        // Сначала пытаемся сложить в уже занятые подходящие слоты.
         for (int i = 0; i < machineSlots && stack.stackSize > 0; i++) {
             Slot slot = (Slot) inventorySlots.get(i);
             if (!slot.isItemValid(stack)) continue;
@@ -88,7 +155,6 @@ public abstract class BaseContainerMachine extends Container {
             }
         }
 
-        // Затем в пустые подходящие слоты.
         for (int i = 0; i < machineSlots && stack.stackSize > 0; i++) {
             Slot slot = (Slot) inventorySlots.get(i);
             if (!slot.isItemValid(stack) || slot.getHasStack()) continue;

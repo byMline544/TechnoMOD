@@ -16,7 +16,7 @@ import net.minecraftforge.common.ForgeDirection;
  * - защищена от повторного тика в тот же world tick,
  * - чистит невалидные тайлы,
  * - учитывает приоритеты узлов,
- * - распределяет энергию по фактическому спросу потребителей.
+ * - переносит энергию только в пределах реально извлеченного объёма.
  */
 public class EnergyNetwork {
     private final Set<IEnergySource> sources = new HashSet<IEnergySource>();
@@ -49,46 +49,13 @@ public class EnergyNetwork {
         Collections.sort(sourceList, castComparator());
         Collections.sort(sinkList, castComparator());
 
-        int offered = 0;
-        for (IEnergySource source : sourceList) {
-            if (!source.canConnectEnergy(ForgeDirection.UNKNOWN)) continue;
-            offered += Math.max(0, source.extractEnergy(ForgeDirection.UNKNOWN, Integer.MAX_VALUE / 4, true));
-            if (offered < 0) {
-                offered = Integer.MAX_VALUE / 2;
-                break;
-            }
-        }
-        if (offered <= 0) return;
+        int totalDemand = calculateDemand(sinkList);
+        if (totalDemand <= 0) return;
 
-        int demanded = 0;
-        for (IEnergySink sink : sinkList) {
-            if (!sink.canConnectEnergy(ForgeDirection.UNKNOWN)) continue;
-            demanded += Math.max(0, sink.receiveEnergy(ForgeDirection.UNKNOWN, Integer.MAX_VALUE / 4, true));
-            if (demanded < 0) {
-                demanded = Integer.MAX_VALUE / 2;
-                break;
-            }
-        }
+        int energyPool = extractFromSources(sourceList, totalDemand);
+        if (energyPool <= 0) return;
 
-        int transferable = Math.min(offered, demanded <= 0 ? offered : demanded);
-        if (transferable <= 0) return;
-
-        int acceptedTotal = 0;
-        for (IEnergySink sink : sinkList) {
-            if (transferable <= 0 || !sink.canConnectEnergy(ForgeDirection.UNKNOWN)) break;
-            int accepted = Math.max(0, sink.receiveEnergy(ForgeDirection.UNKNOWN, transferable, false));
-            transferable -= accepted;
-            acceptedTotal += accepted;
-        }
-
-        int toExtract = acceptedTotal;
-        for (IEnergySource source : sourceList) {
-            if (toExtract <= 0 || !source.canConnectEnergy(ForgeDirection.UNKNOWN)) break;
-            int took = Math.max(0, source.extractEnergy(ForgeDirection.UNKNOWN, toExtract, false));
-            toExtract -= took;
-        }
-
-        transferredThisTick = acceptedTotal - toExtract;
+        transferredThisTick = distributeToSinks(sinkList, energyPool);
     }
 
     public long getTransferredThisTick() { return transferredThisTick; }
@@ -103,6 +70,46 @@ public class EnergyNetwork {
     public void readFromNBT(NBTTagCompound tag) {
         transferredThisTick = tag.getLong("TransferredTick");
         lastWorldTick = tag.getLong("LastWorldTick");
+    }
+
+    private int calculateDemand(List<IEnergySink> sinkList) {
+        int demanded = 0;
+        for (IEnergySink sink : sinkList) {
+            if (!sink.canConnectEnergy(ForgeDirection.UNKNOWN)) continue;
+            demanded += Math.max(0, sink.receiveEnergy(ForgeDirection.UNKNOWN, Integer.MAX_VALUE / 4, true));
+            if (demanded < 0) return Integer.MAX_VALUE / 2;
+        }
+        return demanded;
+    }
+
+    private int extractFromSources(List<IEnergySource> sourceList, int demandLimit) {
+        int extractedTotal = 0;
+        int remainingNeed = demandLimit;
+
+        for (IEnergySource source : sourceList) {
+            if (remainingNeed <= 0) break;
+            if (!source.canConnectEnergy(ForgeDirection.UNKNOWN)) continue;
+            int extracted = Math.max(0, source.extractEnergy(ForgeDirection.UNKNOWN, remainingNeed, false));
+            extractedTotal += extracted;
+            remainingNeed -= extracted;
+        }
+
+        return extractedTotal;
+    }
+
+    private int distributeToSinks(List<IEnergySink> sinkList, int available) {
+        int transferred = 0;
+        int remaining = available;
+
+        for (IEnergySink sink : sinkList) {
+            if (remaining <= 0) break;
+            if (!sink.canConnectEnergy(ForgeDirection.UNKNOWN)) continue;
+            int accepted = Math.max(0, sink.receiveEnergy(ForgeDirection.UNKNOWN, remaining, false));
+            remaining -= accepted;
+            transferred += accepted;
+        }
+
+        return transferred;
     }
 
     private void cleanupInvalidNodes() {
