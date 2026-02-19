@@ -6,6 +6,7 @@ import techno.items.ItemComponent;
 import techno.items.ItemDust;
 import techno.items.ItemIngot;
 import techno.items.armor.ItemTechElectricArmor;
+import techno.items.book.ItemTechBook;
 
 /**
  * Регистрация предметов мода.
@@ -38,6 +39,7 @@ public final class ItemManager {
     public static ItemTechElectricArmor quantumChest;
     public static ItemTechElectricArmor quantumLegs;
     public static ItemTechElectricArmor quantumBoots;
+    public static ItemTechBook techBook;
 
     private ItemManager() {}
 
@@ -69,6 +71,7 @@ public final class ItemManager {
         quantumChest = new ItemTechElectricArmor(5016, EnumArmorMaterial.DIAMOND, 0, 1, "quantumChest", 1500000);
         quantumLegs = new ItemTechElectricArmor(5017, EnumArmorMaterial.DIAMOND, 0, 2, "quantumLegs", 1200000);
         quantumBoots = new ItemTechElectricArmor(5018, EnumArmorMaterial.DIAMOND, 0, 3, "quantumBoots", 1000000);
+        techBook = new ItemTechBook(5025, "techBook");
 
         GameRegistry.registerItem(ingotBronze, "ingotBronze");
         GameRegistry.registerItem(ingotTin, "ingotTin");
@@ -95,6 +98,7 @@ public final class ItemManager {
         GameRegistry.registerItem(quantumChest, "quantumChest");
         GameRegistry.registerItem(quantumLegs, "quantumLegs");
         GameRegistry.registerItem(quantumBoots, "quantumBoots");
+        GameRegistry.registerItem(techBook, "techBook");
     }
 
     public static void registerNames() {
@@ -123,5 +127,6 @@ public final class ItemManager {
         cpw.mods.fml.common.registry.LanguageRegistry.addName(quantumChest, "Квантовая кираса");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(quantumLegs, "Квантовые поножи");
         cpw.mods.fml.common.registry.LanguageRegistry.addName(quantumBoots, "Квантовые ботинки");
+        cpw.mods.fml.common.registry.LanguageRegistry.addName(techBook, "Техно-книга");
     }
 }
